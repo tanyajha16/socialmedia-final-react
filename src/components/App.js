@@ -16,6 +16,7 @@ import Settings from '../components/settings';
 import { authenticateUser } from '../actions/auth';
 import { getAuthTokenFromLocalStorage } from '../helpers/utils';
  import UserProfile from'../components/UserProfile';
+import { fetchUserFriends } from '../actions/friend';
 
 // const Login = () => <div>Login</div>;
 
@@ -50,10 +51,11 @@ const token =getAuthTokenFromLocalStorage();
         _id:user._id,
         name:user.name
       }));
+      this.props.dispatch(fetchUserFriends());
     }
   }
   render() {
-    const { posts ,auth} = this.props;
+    const { posts ,auth,friends} = this.props;
     // console.log('props', this.props);
     return (
       <Router>
@@ -65,7 +67,9 @@ const token =getAuthTokenFromLocalStorage();
           <Route exact={true} path="/" render=
           { (props) => { 
             // passing props of posts here as this 
-            return <Home {...props} posts ={posts}  />
+            return <Home {...props} posts ={posts}
+            friends={friends}
+            isLoggedin={auth.isLoggedin}  />
           }} />
           <Route path="/login" component={Login} />
           <Route path="/signup" component={Signup} />
