@@ -1,82 +1,112 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-// import React, {Component} from 'react';
-import { BrowserRouter as Router, Link, Route,Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+} from 'react-router-dom';
+import PropTypes from 'prop-types';
+
 import { fetchPosts } from '../actions/posts';
-// import PostsList from './index';
-// import PostsList from './PostsList';
-import Navbar from './navbar';
-import Home from './Home';
-import Login from './Login';
-import Signup from './Signup';
-import Page404 from './Page404';
+import {
+  Home,
+  Navbar,
+  Page404,
+  Login,
+  Signup,
+  Settings,
+  UserProfile,
+  
+} from './';
 import * as jwtDecode from 'jwt-decode';
-import Settings from '../components/settings';
 import { authenticateUser } from '../actions/auth';
 import { getAuthTokenFromLocalStorage } from '../helpers/utils';
- import UserProfile from'../components/UserProfile';
-import { fetchUserFriends } from '../actions/friend';
+import { fetchUserFriends } from '../actions/friends';
 
-// const Login = () => <div>Login</div>;
+const PrivateRoute = (privateRouteProps) => {
+  const { isLoggedin, path, component: Component } = privateRouteProps;
 
-// const Signup = () => <div>Signup</div>;
-// const Settings =()=> <div>Settings</div>;
-const PrivateRoute = (privateRouteProps) =>
-{
-  const {isLoggedin,path,component:Component} = privateRouteProps;
-  return <Route path={path} render={(props) => {
-    return isLoggedin ? <Component {...props} />:<Redirect to =
-    {{
-    pathname:'/login' ,
-  state:{
-   from: props.location,
-  }  
-}}/>;
-  }} />
+  return (
+    <Route
+      path={path}
+      render={(props) => {
+        console.log('props', props);
+        console.log('isLoggedin', isLoggedin);
+        return isLoggedin ? (
+          <Component {...props} />
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/login',
+              state: {
+                from: props.location,
+              },
+            }}
+          />
+        );
+      }}
+    />
+  );
 };
+
 class App extends React.Component {
   componentDidMount() {
     this.props.dispatch(fetchPosts());
 
-    // const token = localStorage.getItem('token');
-const token =getAuthTokenFromLocalStorage();
-    if(token)
-    {
+    const token = getAuthTokenFromLocalStorage();
+
+    if (token) {
       const user = jwtDecode(token);
 
-      console.log('user',user);
-      this.props.dispatch(authenticateUser({
-        email:user.email,
-        _id:user._id,
-        name:user.name
-      }));
+      console.log('user', user);
+      this.props.dispatch(
+        authenticateUser({
+          email: user.email,
+          _id: user._id,
+          name: user.name,
+        })
+      );
+
       this.props.dispatch(fetchUserFriends());
     }
   }
+
   render() {
-    const { posts ,auth,friends} = this.props;
-    // console.log('props', this.props);
+    const { posts, auth, friends } = this.props;
     return (
       <Router>
         <div>
           <Navbar />
-          {/* <PostsList posts={posts} /> */}
-          {/* specyfying different routes */}
+
           <Switch>
-          <Route exact={true} path="/" render=
-          { (props) => { 
-            // passing props of posts here as this 
-            return <Home {...props} posts ={posts}
-            friends={friends}
-            isLoggedin={auth.isLoggedin}  />
-          }} />
-          <Route path="/login" component={Login} />
-          <Route path="/signup" component={Signup} />
-          <PrivateRoute path="/settings" component={Settings} isLoggedin={auth.isLoggedin}/>
-          {/* if we dont give path then 404 gets rendered */}
-          <PrivateRoute path="/user/:userId" component={UserProfile} isLoggedin={auth.isLoggedin}/>
-          <Route component ={Page404}/>
+            <Route
+              exact
+              path="/"
+              render={(props) => {
+                return (
+                  <Home
+                    {...props}
+                    posts={posts}
+                    friends={friends}
+                    isLoggedin={auth.isLoggedin}
+                  />
+                );
+              }}
+            />
+            <Route path="/login" component={Login} />
+            <Route path="/signup" component={Signup} />
+            <PrivateRoute
+              path="/settings"
+              component={Settings}
+              isLoggedin={auth.isLoggedin}
+            />
+            <PrivateRoute
+              path="/user/:userId"
+              component={UserProfile}
+              isLoggedin={auth.isLoggedin}
+            />
+            <Route component={Page404} />
           </Switch>
         </div>
       </Router>
@@ -87,11 +117,13 @@ const token =getAuthTokenFromLocalStorage();
 function mapStateToProps(state) {
   return {
     posts: state.posts,
-    auth:state.auth,
+    auth: state.auth,
+    friends: state.friends,
   };
 }
 
 App.propTypes = {
   posts: PropTypes.array.isRequired,
 };
+
 export default connect(mapStateToProps)(App);

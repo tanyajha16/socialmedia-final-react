@@ -9,10 +9,10 @@ import {
   SIGNUP_SUCCESS,
   CLEAR_AUTH_STATE,
   EDIT_USER_SUCCESSFUL,
-  EDIT_USER_FAILED,
 } from './actionTypes';
 import { APIUrls } from '../helpers/urls';
 import { getFormBody, getAuthTokenFromLocalStorage } from '../helpers/utils';
+
 export function startLogin() {
   return {
     type: LOGIN_START,
@@ -21,19 +21,18 @@ export function startLogin() {
 export function loginFailed(errorMessage) {
   return {
     type: LOGIN_FAILED,
-    error:errorMessage,
+    error: errorMessage,
   };
 }
+
 export function loginSuccess(user) {
   return {
     type: LOGIN_SUCCESS,
-    user:user,
+    user,
   };
 }
 
-
 export function login(email, password) {
-  // return asynchronous function
   return (dispatch) => {
     dispatch(startLogin());
     const url = APIUrls.login();
@@ -44,23 +43,19 @@ export function login(email, password) {
       },
       body: getFormBody({ email, password }),
     })
-    .then(response => response.json())
-    .then(data => 
-      {
-        console.log('data',data);
-        if(data.success)
-        {
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('data', data);
+        if (data.success) {
           // dispatch action to save user
-          localStorage.setItem('token',data.data.token);
-          dispatch (loginSuccess(data.data.user));
+          localStorage.setItem('token', data.data.token);
+          dispatch(loginSuccess(data.data.user));
           return;
         }
         dispatch(loginFailed(data.message));
       });
   };
 }
-
-
 
 export function authenticateUser(user) {
   return {
@@ -92,7 +87,7 @@ export function signup(email, password, confirmPassword, name) {
     })
       .then((response) => response.json())
       .then((data) => {
-        // console.log('data', data);
+        console.log('data', data);
         if (data.success) {
           // do something
           localStorage.setItem('token', data.data.token);
@@ -124,61 +119,56 @@ export function signupSuccessful(user) {
   };
 }
 
-export function clearAuthState()
-{
+export function clearAuthState() {
   return {
-    type:CLEAR_AUTH_STATE,
+    type: CLEAR_AUTH_STATE,
   };
 }
 
-export function editUserSuccessful(user)
-{
-return{
-  type:EDIT_USER_SUCCESSFUL,
-  user,
-};
-}
-export function editUserFailed(error)
-{
-return{
-  type:EDIT_USER_FAILED,
-  error,
-};
+export function editUserSuccessful(user) {
+  return {
+    type: EDIT_USER_SUCCESSFUL,
+    user,
+  };
 }
 
-export function editUser(name,password,confirmPassword,userId)
-{
-  return(dispatch) => 
-  {
- const url = APIUrls.editProfile();
+export function editUserFailed(error) {
+  return {
+    type: EDIT_USER_SUCCESSFUL,
+    error,
+  };
+}
 
- fetch(url,{
-   method:'POST',
-   headers: {
-     'Content-Type': 'application/x-www-form-urlencoded',
-     'Authorization':`Bearer ${getAuthTokenFromLocalStorage()}`,
-  
-  },
-  body: getFormBody({
-    name,
-    password,
-    confirm_password:confirmPassword,
-    id:userId,
-  }),
- })
- .then(response => response.json()) 
-  .then(data =>{
-    console.log('Edit profile data',data);
-    if(data.success)
-    {
-      dispatch(editUserSuccessful(data.data.user));
-      if(data.data.token)
-      {
-  localStorage.setItem('token',data.data.token);
-      }  
-return;
-    }
-dispatch(editUserFailed(data.message));
-  });
-  }
+export function editUser(name, password, confirmPassword, userId) {
+  return (dispatch) => {
+    const url = APIUrls.editProfile();
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Bearer ${getAuthTokenFromLocalStorage()}`,
+      },
+      body: getFormBody({
+        name,
+        password,
+        confirm_password: confirmPassword,
+        id: userId,
+      }),
+    })
+      .then((repsonse) => repsonse.json())
+      .then((data) => {
+        console.log('EDIT PROFIle data', data);
+        if (data.success) {
+          dispatch(editUserSuccessful(data.data.user));
+
+          if (data.data.token) {
+            localStorage.setItem('token', data.data.token);
+          }
+          return;
+        }
+
+        dispatch(editUserFailed(data.message));
+      });
+  };
 }
