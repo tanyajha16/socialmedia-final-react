@@ -13,7 +13,9 @@ import CreatePost from './CreatePost';
 import Post from './Post';
 import Comment from './Comment';
 import NoResults from './NoResults';
-import Chat from './Chat'
+import Chat from './Chat';
+import FilesUploadComponent from './files-upload-component';
+
 export {
   PostsList,
   App,
@@ -31,4 +33,5 @@ export {
   Comment,
   NoResults,
   Chat,
+  FilesUploadComponent,
 };

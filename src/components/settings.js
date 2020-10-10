@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {editUser, clearAuthState} from '../actions/auth';
+import {FilesUploadComponent} from './index';
 
 class Settings extends Component {
   constructor(props) {
@@ -35,16 +36,22 @@ class Settings extends Component {
   render() {
     const { user ,error} = this.props.auth;
     const { editMode } = this.state;
+    const {profileImg} = this.props;
     return (
       <div className="settings">
-        <div className="img-container">
-          <img
+        <div className="img-container" style={{border:2,borderColor:"black",height:100,width:100}}>
+          {/* <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTIhCBq-WV5kdxy5e-8fgzaYKejJFYOUnTt1Q&usqp=CAU"
             alt="user-dp"
             id="user-dp"
-          />
-        </div>
+          /> */}
+         <img src="`${profileImg}`"
+         alt="user-dp"
+         id="user-dp"/>
 
+        </div>
+        
+       <FilesUploadComponent/>
 
         {error && <div className="alert error-dialog">
           {error}</div>}
